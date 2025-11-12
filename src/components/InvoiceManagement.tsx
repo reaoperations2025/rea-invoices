@@ -25,7 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Download, Plus, Search, Edit, FileText } from "lucide-react";
+import { Download, Plus, Search, Edit, FileText, TrendingUp, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import invoicesData from "@/data/invoices.json";
 
@@ -49,6 +49,9 @@ export const InvoiceManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedYear, setSelectedYear] = useState<string>("all");
   const [selectedSalesPerson, setSelectedSalesPerson] = useState<string>("all");
+  const [selectedClient, setSelectedClient] = useState<string>("all");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [formData, setFormData] = useState<Partial<Invoice>>({});
@@ -63,6 +66,11 @@ export const InvoiceManagement = () => {
     return unique.sort();
   }, [invoices]);
 
+  const clients = useMemo(() => {
+    const unique = [...new Set(invoices.map((inv) => inv.CLIENT))].filter(client => client && client.trim() !== "");
+    return unique.sort();
+  }, [invoices]);
+
   const filteredInvoices = useMemo(() => {
     return invoices.filter((invoice) => {
       const matchesSearch =
@@ -73,14 +81,23 @@ export const InvoiceManagement = () => {
       const matchesYear = selectedYear === "all" || invoice._year === selectedYear;
       const matchesSalesPerson =
         selectedSalesPerson === "all" || invoice["Sales Person"] === selectedSalesPerson;
+      const matchesClient = selectedClient === "all" || invoice.CLIENT === selectedClient;
 
-      return matchesSearch && matchesYear && matchesSalesPerson;
+      // Date filtering
+      const invoiceDate = invoice["INVOICE DATE"].split(" ")[0];
+      const matchesStartDate = !startDate || invoiceDate >= startDate;
+      const matchesEndDate = !endDate || invoiceDate <= endDate;
+
+      return matchesSearch && matchesYear && matchesSalesPerson && matchesClient && matchesStartDate && matchesEndDate;
     });
-  }, [invoices, searchTerm, selectedYear, selectedSalesPerson]);
+  }, [invoices, searchTerm, selectedYear, selectedSalesPerson, selectedClient, startDate, endDate]);
 
   const totalAmount = useMemo(() => {
     return filteredInvoices.reduce(
-      (sum, inv) => sum + parseFloat(inv["TOTAL INVOICE AMOUNT"]),
+      (sum, inv) => {
+        const amount = parseFloat(inv["TOTAL INVOICE AMOUNT"] || "0");
+        return sum + (isNaN(amount) ? 0 : amount);
+      },
       0
     );
   }, [filteredInvoices]);
@@ -147,174 +164,231 @@ export const InvoiceManagement = () => {
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-6">
+        <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
           <div className="flex items-center gap-3">
-            <FileText className="h-8 w-8 text-primary" />
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <FileText className="h-6 w-6 text-primary" />
+            </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Invoices</p>
-              <p className="text-2xl font-bold">{filteredInvoices.length}</p>
+              <p className="text-sm text-muted-foreground font-medium">Total Invoices</p>
+              <p className="text-3xl font-bold text-foreground">{filteredInvoices.length}</p>
             </div>
           </div>
         </Card>
-        <Card className="p-6">
-          <div>
-            <p className="text-sm text-muted-foreground">Total Amount</p>
-            <p className="text-2xl font-bold text-primary">
-              AED {totalAmount.toFixed(2)}
-            </p>
+        <Card className="p-6 bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-secondary/10 rounded-lg">
+              <DollarSign className="h-6 w-6 text-secondary" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground font-medium">Total Amount</p>
+              <p className="text-3xl font-bold text-foreground">
+                AED {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
           </div>
         </Card>
-        <Card className="p-6">
-          <div>
-            <p className="text-sm text-muted-foreground">Average Invoice</p>
-            <p className="text-2xl font-bold text-secondary">
-              AED {filteredInvoices.length > 0 ? (totalAmount / filteredInvoices.length).toFixed(2) : "0.00"}
-            </p>
+        <Card className="p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-accent/10 rounded-lg">
+              <TrendingUp className="h-6 w-6 text-accent" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground font-medium">Average Invoice</p>
+              <p className="text-3xl font-bold text-foreground">
+                AED {filteredInvoices.length > 0 
+                  ? (totalAmount / filteredInvoices.length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                  : "0.00"}
+              </p>
+            </div>
           </div>
         </Card>
       </div>
 
       {/* Filters and Actions */}
       <Card className="p-6">
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by client, invoice number, or description..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by client, invoice number, or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button onClick={handleDownload} variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              Download
+            </Button>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={openAddDialog} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Invoice
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingInvoice ? "Edit Invoice" : "Add New Invoice"}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-4 py-4">
+                  <div className="space-y-2">
+                    <Label>Client Name</Label>
+                    <Input
+                      value={formData.CLIENT || ""}
+                      onChange={(e) => setFormData({ ...formData, CLIENT: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Client TRN</Label>
+                    <Input
+                      value={formData["CLIENT TRN"] || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, "CLIENT TRN": e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label>Description</Label>
+                    <Input
+                      value={formData.DESCRIPTION || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, DESCRIPTION: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Invoice Sub-Total</Label>
+                    <Input
+                      type="number"
+                      value={formData["INVOICE SUB-TOTAL"] || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, "INVOICE SUB-TOTAL": e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Rebate</Label>
+                    <Input
+                      type="number"
+                      value={formData.REBATE || ""}
+                      onChange={(e) => setFormData({ ...formData, REBATE: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>VAT Amount</Label>
+                    <Input
+                      type="number"
+                      value={formData["VAT % AMOUNT"] || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, "VAT % AMOUNT": e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Total Amount</Label>
+                    <Input
+                      type="number"
+                      value={formData["TOTAL INVOICE AMOUNT"] || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, "TOTAL INVOICE AMOUNT": e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Sales Person</Label>
+                    <Input
+                      value={formData["Sales Person"] || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, "Sales Person": e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Year</Label>
+                    <Input
+                      value={formData._year || ""}
+                      onChange={(e) => setFormData({ ...formData, _year: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <Button onClick={handleSaveInvoice} className="w-full">
+                  {editingInvoice ? "Update Invoice" : "Add Invoice"}
+                </Button>
+              </DialogContent>
+            </Dialog>
           </div>
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-full lg:w-40">
-              <SelectValue placeholder="Year" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Years</SelectItem>
-              {years.map((year) => (
-                <SelectItem key={year} value={year}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={selectedSalesPerson} onValueChange={setSelectedSalesPerson}>
-            <SelectTrigger className="w-full lg:w-48">
-              <SelectValue placeholder="Sales Person" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Sales Persons</SelectItem>
-              {salesPersons.map((person) => (
-                <SelectItem key={person} value={person}>
-                  {person}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={handleDownload} variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Download
-          </Button>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openAddDialog} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add Invoice
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingInvoice ? "Edit Invoice" : "Add New Invoice"}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="grid grid-cols-2 gap-4 py-4">
-                <div className="space-y-2">
-                  <Label>Client Name</Label>
-                  <Input
-                    value={formData.CLIENT || ""}
-                    onChange={(e) => setFormData({ ...formData, CLIENT: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Client TRN</Label>
-                  <Input
-                    value={formData["CLIENT TRN"] || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, "CLIENT TRN": e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label>Description</Label>
-                  <Input
-                    value={formData.DESCRIPTION || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, DESCRIPTION: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Invoice Sub-Total</Label>
-                  <Input
-                    type="number"
-                    value={formData["INVOICE SUB-TOTAL"] || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, "INVOICE SUB-TOTAL": e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Rebate</Label>
-                  <Input
-                    type="number"
-                    value={formData.REBATE || ""}
-                    onChange={(e) => setFormData({ ...formData, REBATE: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>VAT Amount</Label>
-                  <Input
-                    type="number"
-                    value={formData["VAT % AMOUNT"] || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, "VAT % AMOUNT": e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Total Amount</Label>
-                  <Input
-                    type="number"
-                    value={formData["TOTAL INVOICE AMOUNT"] || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, "TOTAL INVOICE AMOUNT": e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Sales Person</Label>
-                  <Input
-                    value={formData["Sales Person"] || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, "Sales Person": e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Year</Label>
-                  <Input
-                    value={formData._year || ""}
-                    onChange={(e) => setFormData({ ...formData, _year: e.target.value })}
-                  />
-                </div>
-              </div>
-              <Button onClick={handleSaveInvoice} className="w-full">
-                {editingInvoice ? "Update Invoice" : "Add Invoice"}
-              </Button>
-            </DialogContent>
-          </Dialog>
+          
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Start Date</Label>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">End Date</Label>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Client</Label>
+              <Select value={selectedClient} onValueChange={setSelectedClient}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Clients" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Clients</SelectItem>
+                  {clients.map((client) => (
+                    <SelectItem key={client} value={client}>
+                      {client}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Year</Label>
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Years" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Years</SelectItem>
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Sales Person</Label>
+              <Select value={selectedSalesPerson} onValueChange={setSelectedSalesPerson}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Sales Persons" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sales Persons</SelectItem>
+                  {salesPersons.map((person) => (
+                    <SelectItem key={person} value={person}>
+                      {person}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -343,13 +417,13 @@ export const InvoiceManagement = () => {
                   <TableCell>{invoice.CLIENT}</TableCell>
                   <TableCell className="max-w-xs truncate">{invoice.DESCRIPTION}</TableCell>
                   <TableCell className="text-right">
-                    {parseFloat(invoice["INVOICE SUB-TOTAL"]).toFixed(2)}
+                    {parseFloat(invoice["INVOICE SUB-TOTAL"] || "0").toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {parseFloat(invoice["VAT % AMOUNT"]).toFixed(2)}
+                    {parseFloat(invoice["VAT % AMOUNT"] || "0").toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {parseFloat(invoice["TOTAL INVOICE AMOUNT"]).toFixed(2)}
+                    {parseFloat(invoice["TOTAL INVOICE AMOUNT"] || "0").toFixed(2)}
                   </TableCell>
                   <TableCell>{invoice["Sales Person"]}</TableCell>
                   <TableCell className="text-right">
