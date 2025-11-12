@@ -309,39 +309,39 @@ export const InvoiceManagement = () => {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/30 shadow-lg hover:shadow-xl transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-primary/20 rounded-xl">
-              <FileText className="h-7 w-7 text-primary" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/30 shadow-lg hover:shadow-xl transition-shadow">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="p-3 sm:p-4 bg-primary/20 rounded-xl">
+              <FileText className="h-5 w-5 sm:h-7 sm:w-7 text-primary" />
             </div>
             <div>
               <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">Total Invoices</p>
-              <p className="text-4xl font-bold text-foreground">{filteredInvoices.length}</p>
+              <p className="text-2xl sm:text-4xl font-bold text-foreground">{filteredInvoices.length}</p>
             </div>
           </div>
         </Card>
-        <Card className="p-6 bg-gradient-to-br from-gold/5 to-gold/10 border-gold/30 shadow-lg hover:shadow-xl transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-gold/20 rounded-xl">
-              <Coins className="h-7 w-7 text-gold" />
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-gold/5 to-gold/10 border-gold/30 shadow-lg hover:shadow-xl transition-shadow">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="p-3 sm:p-4 bg-gold/20 rounded-xl">
+              <Coins className="h-5 w-5 sm:h-7 sm:w-7 text-gold" />
             </div>
             <div>
               <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">Total Amount</p>
-              <p className="text-4xl font-bold text-foreground">
+              <p className="text-xl sm:text-3xl lg:text-4xl font-bold text-foreground">
                 {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AED
               </p>
             </div>
           </div>
         </Card>
-        <Card className="p-6 bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/30 shadow-lg hover:shadow-xl transition-shadow">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-secondary/20 rounded-xl">
-              <TrendingUp className="h-7 w-7 text-secondary" />
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/30 shadow-lg hover:shadow-xl transition-shadow">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="p-3 sm:p-4 bg-secondary/20 rounded-xl">
+              <TrendingUp className="h-5 w-5 sm:h-7 sm:w-7 text-secondary" />
             </div>
             <div>
               <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">Average Invoice</p>
-              <p className="text-4xl font-bold text-foreground">
+              <p className="text-xl sm:text-3xl lg:text-4xl font-bold text-foreground">
                 {filteredInvoices.length > 0 
                   ? (totalAmount / filteredInvoices.length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                   : "0.00"} AED
@@ -352,9 +352,9 @@ export const InvoiceManagement = () => {
       </div>
 
       {/* Filters and Actions */}
-      <Card className="p-6 shadow-md">
+      <Card className="p-4 sm:p-6 shadow-md">
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -364,93 +364,93 @@ export const InvoiceManagement = () => {
                 className="pl-10 h-11"
               />
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2 h-11">
-                  <Download className="h-4 w-4" />
-                  Download
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleDownloadExcel} className="gap-2">
-                  <FileSpreadsheet className="h-4 w-4 text-success" />
-                  Download as Excel
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
-                  <FileDown className="h-4 w-4 text-destructive" />
-                  Download as PDF
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={openAddDialog} className="gap-2 h-11 bg-primary hover:bg-primary/90">
-                  <Plus className="h-4 w-4" />
-                  Add Invoice
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingInvoice ? "Edit Invoice" : "Add New Invoice"}
-                  </DialogTitle>
-                </DialogHeader>
+            <div className="flex gap-2 sm:gap-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2 h-11 flex-1 sm:flex-none">
+                    <Download className="h-4 w-4" />
+                    <span className="hidden sm:inline">Download</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleDownloadExcel} className="gap-2">
+                    <FileSpreadsheet className="h-4 w-4 text-success" />
+                    Download as Excel
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
+                    <FileDown className="h-4 w-4 text-destructive" />
+                    Download as PDF
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={openAddDialog} className="gap-2 h-11 bg-primary hover:bg-primary/90 flex-1 sm:flex-none">
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden sm:inline">Add Invoice</span>
+                    <span className="sm:hidden">Add</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="text-lg sm:text-xl">
+                      {editingInvoice ? "Edit Invoice" : "Add New Invoice"}
+                    </DialogTitle>
+                  </DialogHeader>
 
                 {!editingInvoice && (
-                  <div className="grid grid-cols-2 gap-3 py-4 border-b">
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Scan Invoice</Label>
-                      <div className="flex gap-2">
-                        <label className="flex-1">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            onChange={handleCameraCapture}
-                            className="hidden"
-                            disabled={isScanning}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="w-full gap-2"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              (e.currentTarget.previousElementSibling as HTMLInputElement)?.click();
-                            }}
-                            disabled={isScanning}
-                          >
-                            <Camera className="h-4 w-4" />
-                            {isScanning ? "Scanning..." : "Take Photo"}
-                          </Button>
-                        </label>
-                        <label className="flex-1">
-                          <input
-                            type="file"
-                            accept="image/*,application/pdf"
-                            onChange={handleFileSelect}
-                            className="hidden"
-                            disabled={isScanning}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="w-full gap-2"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              (e.currentTarget.previousElementSibling as HTMLInputElement)?.click();
-                            }}
-                            disabled={isScanning}
-                          >
-                            <Upload className="h-4 w-4" />
-                            {isScanning ? "Scanning..." : "Upload File"}
-                          </Button>
-                        </label>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Upload an invoice image or PDF to auto-fill the form
-                      </p>
+                  <div className="py-4 border-b">
+                    <Label className="text-sm font-medium mb-2 block">Scan Invoice</Label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <label className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={handleCameraCapture}
+                          className="hidden"
+                          disabled={isScanning}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full gap-2"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            (e.currentTarget.previousElementSibling as HTMLInputElement)?.click();
+                          }}
+                          disabled={isScanning}
+                        >
+                          <Camera className="h-4 w-4" />
+                          {isScanning ? "Scanning..." : "Take Photo"}
+                        </Button>
+                      </label>
+                      <label className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                          disabled={isScanning}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full gap-2"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            (e.currentTarget.previousElementSibling as HTMLInputElement)?.click();
+                          }}
+                          disabled={isScanning}
+                        >
+                          <Upload className="h-4 w-4" />
+                          {isScanning ? "Scanning..." : "Upload File"}
+                        </Button>
+                      </label>
                     </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Upload an invoice image or PDF to auto-fill the form
+                    </p>
                   </div>
                 )}
 
@@ -560,11 +560,12 @@ export const InvoiceManagement = () => {
                 <Button onClick={handleSaveInvoice} className="w-full">
                   {editingInvoice ? "Update Invoice" : "Add Invoice"}
                 </Button>
-              </DialogContent>
+               </DialogContent>
             </Dialog>
+           </div>
           </div>
           
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Start Date</Label>
               <Input
@@ -635,51 +636,53 @@ export const InvoiceManagement = () => {
 
       {/* Table */}
       <Card className="shadow-md">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Invoice No.</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Sub-Total</TableHead>
-                <TableHead className="text-right">VAT</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead>Sales Person</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredInvoices.map((invoice) => (
-                <TableRow key={invoice["INVOICE NO."]}>
-                  <TableCell className="font-medium">{invoice["INVOICE NO."]}</TableCell>
-                  <TableCell>{invoice["INVOICE DATE"].split(" ")[0]}</TableCell>
-                  <TableCell>{invoice.CLIENT}</TableCell>
-                  <TableCell className="max-w-xs truncate">{invoice.DESCRIPTION}</TableCell>
-                  <TableCell className="text-right">
-                    {parseFloat(invoice["INVOICE SUB-TOTAL"] || "0").toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {parseFloat(invoice["VAT % AMOUNT"] || "0").toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {parseFloat(invoice["TOTAL INVOICE AMOUNT"] || "0").toFixed(2)}
-                  </TableCell>
-                  <TableCell>{invoice["Sales Person"]}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openEditDialog(invoice)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="whitespace-nowrap">Invoice No.</TableHead>
+                  <TableHead className="whitespace-nowrap">Date</TableHead>
+                  <TableHead className="whitespace-nowrap">Client</TableHead>
+                  <TableHead className="whitespace-nowrap">Description</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">Sub-Total</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">VAT</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">Total</TableHead>
+                  <TableHead className="whitespace-nowrap">Sales Person</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredInvoices.map((invoice) => (
+                  <TableRow key={invoice["INVOICE NO."]}>
+                    <TableCell className="font-medium whitespace-nowrap">{invoice["INVOICE NO."]}</TableCell>
+                    <TableCell className="whitespace-nowrap">{invoice["INVOICE DATE"].split(" ")[0]}</TableCell>
+                    <TableCell className="whitespace-nowrap">{invoice.CLIENT}</TableCell>
+                    <TableCell className="max-w-[200px] truncate">{invoice.DESCRIPTION}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      {parseFloat(invoice["INVOICE SUB-TOTAL"] || "0").toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      {parseFloat(invoice["VAT % AMOUNT"] || "0").toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right font-medium whitespace-nowrap">
+                      {parseFloat(invoice["TOTAL INVOICE AMOUNT"] || "0").toFixed(2)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">{invoice["Sales Person"]}</TableCell>
+                    <TableCell className="text-right whitespace-nowrap">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEditDialog(invoice)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </Card>
     </div>

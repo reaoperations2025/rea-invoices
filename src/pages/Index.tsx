@@ -57,23 +57,23 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-primary shadow-sm">
-        <div className="container mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <img src={reaLogo} alt="REA" className="h-20 w-20 object-contain" />
-              <div className="h-16 w-px bg-primary-foreground/20"></div>
-              <img src={animaLogo} alt="Anima Tech Studio" className="h-20 w-20 object-contain" />
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-6">
+              <img src={reaLogo} alt="REA" className="h-12 w-12 sm:h-20 sm:w-20 object-contain" />
+              <div className="h-10 sm:h-16 w-px bg-primary-foreground/20"></div>
+              <img src={animaLogo} alt="Anima Tech Studio" className="h-12 w-12 sm:h-20 sm:w-20 object-contain" />
             </div>
-            <div className="flex items-center gap-6">
-              <div className="text-right">
-                <h1 className="text-3xl font-bold text-primary-foreground tracking-tight">REA INVOICE TRACKER</h1>
-                <p className="text-sm text-primary-foreground/80 mt-1">Powered by Anima Tech Studio × REA</p>
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 w-full sm:w-auto">
+              <div className="text-center sm:text-right">
+                <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-primary-foreground tracking-tight">REA INVOICE TRACKER</h1>
+                <p className="text-xs sm:text-sm text-primary-foreground/80 mt-1">Powered by Anima Tech Studio × REA</p>
               </div>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleLogout}
-                className="ml-4 bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground border-primary-foreground/20"
+                className="sm:ml-4 bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground border-primary-foreground/20"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
@@ -83,7 +83,7 @@ const Index = () => {
         </div>
       </header>
       
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <InvoiceManagement />
       </main>
     </div>
