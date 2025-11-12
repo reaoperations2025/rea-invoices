@@ -25,7 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Download, Plus, Search, Edit, FileText, TrendingUp, DollarSign } from "lucide-react";
+import { Download, Plus, Search, Edit, FileText, TrendingUp, Coins } from "lucide-react";
 import { toast } from "sonner";
 import invoicesData from "@/data/invoices.json";
 
@@ -163,42 +163,42 @@ export const InvoiceManagement = () => {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <FileText className="h-6 w-6 text-primary" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/30 shadow-lg hover:shadow-xl transition-shadow">
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-primary/20 rounded-xl">
+              <FileText className="h-7 w-7 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground font-medium">Total Invoices</p>
-              <p className="text-3xl font-bold text-foreground">{filteredInvoices.length}</p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">Total Invoices</p>
+              <p className="text-4xl font-bold text-foreground">{filteredInvoices.length}</p>
             </div>
           </div>
         </Card>
-        <Card className="p-6 bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-secondary/10 rounded-lg">
-              <DollarSign className="h-6 w-6 text-secondary" />
+        <Card className="p-6 bg-gradient-to-br from-gold/5 to-gold/10 border-gold/30 shadow-lg hover:shadow-xl transition-shadow">
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-gold/20 rounded-xl">
+              <Coins className="h-7 w-7 text-gold" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground font-medium">Total Amount</p>
-              <p className="text-3xl font-bold text-foreground">
-                AED {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">Total Amount</p>
+              <p className="text-4xl font-bold text-foreground">
+                {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AED
               </p>
             </div>
           </div>
         </Card>
-        <Card className="p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-accent/10 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-accent" />
+        <Card className="p-6 bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/30 shadow-lg hover:shadow-xl transition-shadow">
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-secondary/20 rounded-xl">
+              <TrendingUp className="h-7 w-7 text-secondary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground font-medium">Average Invoice</p>
-              <p className="text-3xl font-bold text-foreground">
-                AED {filteredInvoices.length > 0 
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">Average Invoice</p>
+              <p className="text-4xl font-bold text-foreground">
+                {filteredInvoices.length > 0 
                   ? (totalAmount / filteredInvoices.length).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                  : "0.00"}
+                  : "0.00"} AED
               </p>
             </div>
           </div>
@@ -206,7 +206,7 @@ export const InvoiceManagement = () => {
       </div>
 
       {/* Filters and Actions */}
-      <Card className="p-6">
+      <Card className="p-6 shadow-md">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
@@ -215,16 +215,16 @@ export const InvoiceManagement = () => {
                 placeholder="Search by client, invoice number, or description..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-11"
               />
             </div>
-            <Button onClick={handleDownload} variant="outline" className="gap-2">
+            <Button onClick={handleDownload} variant="outline" className="gap-2 h-11">
               <Download className="h-4 w-4" />
               Download
             </Button>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={openAddDialog} className="gap-2">
+                <Button onClick={openAddDialog} className="gap-2 h-11 bg-primary hover:bg-primary/90">
                   <Plus className="h-4 w-4" />
                   Add Invoice
                 </Button>
@@ -393,7 +393,7 @@ export const InvoiceManagement = () => {
       </Card>
 
       {/* Table */}
-      <Card>
+      <Card className="shadow-md">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
