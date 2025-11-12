@@ -25,9 +25,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Download, Plus, Search, Edit, FileText, TrendingUp, Coins } from "lucide-react";
+import { Download, Plus, Search, Edit, FileText, TrendingUp, Coins, FileSpreadsheet, FileDown } from "lucide-react";
 import { toast } from "sonner";
 import invoicesData from "@/data/invoices.json";
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export interface Invoice {
   CLIENT: string;
@@ -102,15 +111,70 @@ export const InvoiceManagement = () => {
     );
   }, [filteredInvoices]);
 
-  const handleDownload = () => {
-    const dataStr = JSON.stringify(filteredInvoices, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `invoices_${new Date().toISOString().split("T")[0]}.json`;
-    link.click();
-    toast.success("Invoices downloaded successfully");
+  const handleDownloadExcel = () => {
+    const exportData = filteredInvoices.map(inv => ({
+      'Invoice No.': inv["INVOICE NO."],
+      'Date': inv["INVOICE DATE"].split(" ")[0],
+      'Client': inv.CLIENT,
+      'Client TRN': inv["CLIENT TRN"],
+      'Description': inv.DESCRIPTION,
+      'Sub-Total': parseFloat(inv["INVOICE SUB-TOTAL"] || "0").toFixed(2),
+      'Rebate': parseFloat(inv.REBATE || "0").toFixed(2),
+      'Sub-Total After Rebate': parseFloat(inv["INVOICE SUB-TOTAL AFTER REBATE"] || "0").toFixed(2),
+      'VAT Amount': parseFloat(inv["VAT % AMOUNT"] || "0").toFixed(2),
+      'Total Amount (AED)': parseFloat(inv["TOTAL INVOICE AMOUNT"] || "0").toFixed(2),
+      'Sales Person': inv["Sales Person"],
+      'Year': inv._year
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Invoices");
+    
+    const fileName = `REA_Invoices_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    toast.success("Excel file downloaded successfully");
+  };
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF('landscape');
+    
+    // Add title
+    doc.setFontSize(16);
+    doc.text('REA INVOICE TRACKER', 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 22);
+    doc.text(`Total Invoices: ${filteredInvoices.length} | Total Amount: ${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} AED`, 14, 28);
+
+    // Prepare table data
+    const tableData = filteredInvoices.map(inv => [
+      inv["INVOICE NO."],
+      inv["INVOICE DATE"].split(" ")[0],
+      inv.CLIENT,
+      inv.DESCRIPTION.substring(0, 40) + (inv.DESCRIPTION.length > 40 ? '...' : ''),
+      parseFloat(inv["INVOICE SUB-TOTAL"] || "0").toFixed(2),
+      parseFloat(inv["VAT % AMOUNT"] || "0").toFixed(2),
+      parseFloat(inv["TOTAL INVOICE AMOUNT"] || "0").toFixed(2),
+      inv["Sales Person"]
+    ]);
+
+    autoTable(doc, {
+      startY: 35,
+      head: [['Invoice No.', 'Date', 'Client', 'Description', 'Sub-Total', 'VAT', 'Total (AED)', 'Sales Person']],
+      body: tableData,
+      theme: 'striped',
+      headStyles: { fillColor: [0, 150, 200] },
+      styles: { fontSize: 8 },
+      columnStyles: {
+        3: { cellWidth: 60 },
+        4: { halign: 'right' },
+        5: { halign: 'right' },
+        6: { halign: 'right' }
+      }
+    });
+
+    doc.save(`REA_Invoices_${new Date().toISOString().split("T")[0]}.pdf`);
+    toast.success("PDF file downloaded successfully");
   };
 
   const handleSaveInvoice = () => {
@@ -218,10 +282,24 @@ export const InvoiceManagement = () => {
                 className="pl-10 h-11"
               />
             </div>
-            <Button onClick={handleDownload} variant="outline" className="gap-2 h-11">
-              <Download className="h-4 w-4" />
-              Download
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2 h-11">
+                  <Download className="h-4 w-4" />
+                  Download
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleDownloadExcel} className="gap-2">
+                  <FileSpreadsheet className="h-4 w-4 text-success" />
+                  Download as Excel
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
+                  <FileDown className="h-4 w-4 text-destructive" />
+                  Download as PDF
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={openAddDialog} className="gap-2 h-11 bg-primary hover:bg-primary/90">

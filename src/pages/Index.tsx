@@ -9,9 +9,9 @@ const Index = () => {
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <img src={animaLogo} alt="Anima Tech Studio" className="h-16 w-16 object-contain" />
-              <div className="h-12 w-px bg-primary-foreground/20"></div>
-              <img src={reaLogo} alt="REA" className="h-12 w-12 object-contain" />
+              <img src={reaLogo} alt="REA" className="h-20 w-20 object-contain" />
+              <div className="h-16 w-px bg-primary-foreground/20"></div>
+              <img src={animaLogo} alt="Anima Tech Studio" className="h-20 w-20 object-contain" />
             </div>
             <div className="text-right">
               <h1 className="text-3xl font-bold text-primary-foreground tracking-tight">REA INVOICE TRACKER</h1>
